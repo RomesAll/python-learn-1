@@ -1,4 +1,4 @@
-#Подход 1: Прямой доступ (PriceCalculator.product.get_name())
+# Подход 1: Прямой доступ (PriceCalculator.product.get_name())
 
 class Product:
     def __init__(self, name, price):
@@ -29,3 +29,46 @@ calc = PriceCalc(milk, disc=0.6, tax=0.1)
 print(calc.product.get_name())
 print(calc.product.get_price())
 print(calc.calc())
+
+# Подход 2: Прокси-методы (определяем методы в PriceCalculator)
+
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+    def get_name(self):
+        return self.name
+
+    def get_price(self):
+        return self.price
+
+
+class PriceCalculator:
+    def __init__(self, product, discount=0, tax=0):
+        self.product = product
+        self.discount = discount
+        self.tax = tax
+
+    def calculate(self):
+        result = self.product.price
+        result *= (1 - self.discount)
+        result *= (1 + self.tax)
+        return result
+
+    # Прокси-методы
+    def get_name(self):
+        return self.product.get_name()
+
+    def get_price(self):
+        return self.product.get_price()
+
+
+# Использование
+milk = Product('Milk', 1000)
+calc = PriceCalculator(milk, discount=0.6, tax=0.1)
+
+# Красиво и инкапсулировано
+print(calc.get_name())  # Milk
+print(calc.get_price())  # 1000
+print(calc.calculate())  # 440
