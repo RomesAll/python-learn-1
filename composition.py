@@ -72,3 +72,47 @@ calc = PriceCalculator(milk, discount=0.6, tax=0.1)
 print(calc.get_name())  # Milk
 print(calc.get_price())  # 1000
 print(calc.calculate())  # 440
+
+
+# Подход 3: Автоматическое проксирование через __getattr__
+
+class Product:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+
+    def get_name(self):
+        return self.name
+
+    def get_price(self):
+        return self.price
+
+    def get_discount_info(self):
+        return f"Product {self.name} available"
+
+
+class PriceCalculator:
+    def __init__(self, product, discount=0, tax=0):
+        self.product = product
+        self.discount = discount
+        self.tax = tax
+
+    def calculate(self):
+        result = self.product.price
+        result *= (1 - self.discount)
+        result *= (1 + self.tax)
+        return result
+
+    # Если метод не найден в PriceCalculator, ищем в product
+    def __getattr__(self, name):
+        return getattr(self.product, name)
+
+
+# Использование
+milk = Product('Milk', 1000)
+calc = PriceCalculator(milk, discount=0.6, tax=0.1)
+
+print(calc.get_name())  # Milk → перехвачено __getattr__
+print(calc.get_price())  # 1000 → перехвачено __getattr__
+print(calc.get_discount_info())  # Product Milk available
+print(calc.calculate())  # 440 → свой метод
